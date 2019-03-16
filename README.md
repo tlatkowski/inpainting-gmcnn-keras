@@ -13,7 +13,7 @@
 * All required dependencies are stored in requirements.txt, requirements-cpu.txt and requirements-gpu.txt files.
 
 Code download:
-```shell
+```bash
 git clone https://github.com/tlatkowski/inpainting-gmcnn.git
 cd inpainting-gmcnn
 ```
@@ -50,7 +50,7 @@ NVIDIA's mask dataset is available [here](http://masc.cs.gmu.edu/wiki/partialcon
  
  
 **./samples** folder contains exemplary structure of dataset catalogs:
-```
+```bash
 samples
  |-masks
     |-nvidia_masks
@@ -80,20 +80,27 @@ NUM_GAUSSIAN_STEPS = 3
 ```
 
 After dependencies installation you can perform dry-run using image and mask samples provided in **samples** directory. To do so, execute the following command:
-```shell
+```bash
 python runner.py --train_path ./samples/images --mask_path ./samples/masks
 ```
 If everything went correct you should be able to see progress bar logging basic training metrics.
 
 To run GMCNN model training on your training data you have to provide paths to your datasets:
 ```bash
-pyton runner.py --train_path /path/to/training/images --mask_path /path/to/mask/images
+python runner.py --train_path /path/to/training/images --mask_path /path/to/mask/images
 ```
 
 To continue training you should add **-from_weights** additional flag to training runner:
 ```bash
-pyton runner.py --train_path /path/to/training/images --mask_path /path/to/mask/images -from_weights
+python runner.py --train_path /path/to/training/images --mask_path /path/to/mask/images -from_weights
 ```
+
+### Warm-up generator training
+According to the best practices of the usage of GAN frameworks, we should train the generator model for a while. In order to train the generator in the first line run the following command:
+```bash
+python runner.py --train_path /path/to/training/images --mask_path /path/to/mask/images -warm_up_generator
+```
+
 
 The pipeline logs training results to the **outputs** folder:
 * **outputs/logs** contains TensorBoard logs
