@@ -27,9 +27,10 @@ class Trainer:
     self.epochs_iter = tqdm.tqdm(range(self.num_epochs), total=self.num_epochs, desc='Epochs')
     if self.gan_model.warm_up_generator:
       self.log_path = constants.WARM_UP_LOGS_PATH
+      self.predicted_img_path = constants.PREDICTED_PICS_WARM_UP_PATH
     else:
       self.log_path = constants.WGAN_LOGS_PATH
-    self.predicted_img_path = constants.PREDICTED_PICS_PATH
+      self.predicted_img_path = constants.PREDICTED_PICS_WGAN_PATH
   
   def train(self):
     y_real = np.ones([self.gan_model.wgan_batch_size, 1])
