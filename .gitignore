@@ -105,3 +105,4 @@ venv.bak/
 
 /outputs
 /tests/test_results/*.png
+.idea
