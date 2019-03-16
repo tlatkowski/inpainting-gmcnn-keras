@@ -13,7 +13,7 @@
 * All required dependencies are stored in requirements.txt, requirements-cpu.txt and requirements-gpu.txt files.
 
 Code download:
-```bash
+```shell
 git clone https://github.com/tlatkowski/inpainting-gmcnn.git
 cd inpainting-gmcnn
 ```
@@ -80,7 +80,7 @@ NUM_GAUSSIAN_STEPS = 3
 ```
 
 After dependencies installation you can perform dry-run using image and mask samples provided in **samples** directory. To do so, execute the following command:
-```bash
+```shell
 python runner.py --train_path ./samples/images --mask_path ./samples/masks
 ```
 If everything went correct you should be able to see progress bar logging basic training metrics.
