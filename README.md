@@ -137,6 +137,4 @@ Original | 1 step | 2 steps | 3 steps | 4 steps | 5 steps | 10 steps
 
 1. ID-MRF loss function was implemented with usage of original Tensorflow implementation: [GMCNN in Tensorflow](https://github.com/shepnerd/inpainting_gmcnn)
 2. Improved Wasserstain GAN was implemented based on: [Wasserstein GAN with gradient penalty in Keras](https://github.com/keras-team/keras-contrib/blob/master/examples/improved_wgan.py)
-
-TODO:
-model predict
+3. Model architecture diagram was done with usage of PlotNeuralNet: [PlotNeuralNet on GitHub](https://github.com/HarisIqbal88/PlotNeuralNet)
