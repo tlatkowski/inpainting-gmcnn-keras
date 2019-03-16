@@ -73,20 +73,12 @@ class GMCNNGan(WassersteinGAN):
                               mask=generator_inputs_mask,
                               num_steps=self.num_gaussian_steps)
     
-    partial_cr_loss.__name__ = 'id_mrf_loss'
-    
-    # from models import vgg
-    # vgg_model = vgg.build_vgg16(img_rows=128,
-    #                             img_cols=128)
-    
-    # partial_id_mrf_loss = partial(id_mrf_loss, vgg_model=vgg_model)
-    #
-    # partial_id_mrf_loss.__name__ = 'id_mrf_loss'
+    partial_cr_loss.__name__ = 'confidence_reconstruction_loss'
     
     if self.warm_up_generator:
       # set Wasserstein loss to 0 - total generator loss will be based only on reconstruction loss
       generator_model.compile(optimizer=self.generator_optimizer,
-                              loss=[reconstruction_loss, id_mrf_loss, wasserstein_loss,
+                              loss=[partial_cr_loss, id_mrf_loss, wasserstein_loss,
                                     wasserstein_loss],
                               loss_weights=[1., 0., 0., 0.])
     else:
