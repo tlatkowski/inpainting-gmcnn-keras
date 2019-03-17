@@ -10,7 +10,7 @@
 
 ## Dependencies
 * Code on this repository was tested on **Python 3.6** and **Ubuntu 14.04**
-* All required dependencies are stored in requirements.txt, requirements-cpu.txt and requirements-gpu.txt files.
+* All required dependencies are stored in **requirements.txt**, **requirements-cpu.txt** and **requirements-gpu.txt** files.
 
 Code download:
 ```bash
@@ -28,7 +28,7 @@ In case of using GPU support:
 ```bash
 pip install -r requirements/requirements-gpu.txt
 ```
-Otherwise:
+Otherwise (CPU usage):
 ```bash
 pip install -r requirements/requirements-cpu.txt
 ```
@@ -96,7 +96,7 @@ python runner.py --train_path /path/to/training/images --mask_path /path/to/mask
 ```
 
 ### Warm-up generator training
-According to the best practices of the usage of GAN frameworks, firstly we should train the generator model for a while. In order to train the generator only in the first line run the following command:
+According to the best practices of the usage of GAN frameworks, first we should train the generator model for a while. In order to train the generator only in the first line run the following command (additional flag **warm_up_generator** is set):
 ```bash
 python runner.py --train_path /path/to/training/images --mask_path /path/to/mask/images -warm_up_generator
 ```
@@ -108,10 +108,10 @@ In order to continue training with full WGAN-GP framework (GMCNN generator, loca
 python runner.py --train_path /path/to/training/images --mask_path /path/to/mask/images -from_weights
 ```
 
-During the training procedure pipeline logs additional results to the **outputs** folder:
+During the training procedure the pipeline logs additional results to the **outputs** directory:
 * **outputs/logs** contains TensorBoard logs
-* **outputs/predicted_pics/warm_up_generator** contains the model outputs for specific epochs in warm up generator training mode
-* **outputs/predicted_pics/wgan** contains the model outputs for specific epochs in WGAN training mode
+* **outputs/predicted_pics/warm_up_generator** contains the model outputs for specific epochs in the warm up generator training mode
+* **outputs/predicted_pics/wgan** contains the model outputs for specific epochs in the WGAN training mode
 * **outputs/weights** contains the generator and critics model weights
 * **outputs/summaries** contains the generator and critics model summaries
 
@@ -123,9 +123,11 @@ tensorboard --logdir=./outputs/logs
 ## Implementation differences from original paper
 
 1. This model is trained using NVIDIA's irregular mask test set whereas the original model is trained using randomly generated rectangle masks. 
-2. Current version of pipeline does not support warm-up training of generator. (TODO)
+2. Current version of pipeline uses the higher-order features extracted from VGG16 model where as the original model utilizes VGG19.
 
 ## Visualization of Gaussian blurring masks 
+
+Below you can find the visualisation of applying Gaussian blur to the training masks for the different number of convolution steps (number of iteration steps over the input raw mask). 
 
 #### Large mask
 Original | 1 step | 2 steps | 3 steps | 4 steps | 5 steps | 10 steps
