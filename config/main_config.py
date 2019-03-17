@@ -26,5 +26,7 @@ class TrainingConfig:
 class ModelConfig:
   
   def __init__(self, model_section):
-    self.gradient_penalty_weight = int(model_section['GRADIENT_PENALTY_WEIGHT'])
+    self.gradient_penalty_loss_weight = int(model_section['GRADIENT_PENALTY_LOSS_WEIGHT'])
+    self.id_mrf_loss_weight = float(model_section['ID_MRF_LOSS_WEIGHT'])
+    self.adversarial_loss_weight = float(model_section['ADVERSARIAL_LOSS_WEIGHT'])
     self.num_gaussian_steps = int(model_section['NUM_GAUSSIAN_STEPS'])

@@ -4,7 +4,7 @@ from keras.models import Model, Input
 from keras.optimizers import Adam
 
 from layers import custom_layers
-from layers.losses import reconstruction_loss, wasserstein_loss, gradient_penalty_loss, \
+from layers.losses import wasserstein_loss, gradient_penalty_loss, \
   confidence_reconstruction_loss, id_mrf_loss
 from models.discriminator import GlobalDiscriminator, LocalDiscriminator
 from models.generator import Generator
@@ -14,7 +14,9 @@ from models.wgan import WassersteinGAN
 class GMCNNGan(WassersteinGAN):
   
   def __init__(self, batch_size, img_height, img_width, num_channels=3, warm_up_generator=False,
-               learning_rate=0.0001, n_critic=5, num_gaussian_steps=3, gradient_penalty_weight=10):
+               learning_rate=0.0001, n_critic=5, num_gaussian_steps=3,
+               gradient_penalty_loss_weight=10, id_mrf_loss_weight=0.05,
+               adversarial_loss_weight=0.001):
     super(GMCNNGan, self).__init__(img_height, img_width, num_channels, batch_size, n_critic)
     
     self.img_height = img_height
@@ -22,7 +24,9 @@ class GMCNNGan(WassersteinGAN):
     self.num_channels = num_channels
     self.warm_up_generator = warm_up_generator
     self.num_gaussian_steps = num_gaussian_steps
-    self.gradient_penalty_weight = gradient_penalty_weight
+    self.gradient_penalty_loss_weight = gradient_penalty_loss_weight
+    self.id_mrf_loss_weight = id_mrf_loss_weight
+    self.adversarial_loss_weight = adversarial_loss_weight
     
     self.generator_optimizer = Adam(lr=learning_rate, beta_1=0.5, beta_2=0.9)
     self.discriminator_optimizer = Adam(lr=learning_rate, beta_1=0.5, beta_2=0.9)
@@ -69,22 +73,33 @@ class GMCNNGan(WassersteinGAN):
                                      global_discriminator_outputs,
                                      local_discriminator_outputs])
     
+    # this partial trick is required for passing additional parameters for loss functions
     partial_cr_loss = partial(confidence_reconstruction_loss,
                               mask=generator_inputs_mask,
                               num_steps=self.num_gaussian_steps)
     
     partial_cr_loss.__name__ = 'confidence_reconstruction_loss'
     
+    partial_id_mrf_loss = partial(id_mrf_loss,
+                                  id_mrf_loss_weight=self.id_mrf_loss_weight)
+    
+    partial_id_mrf_loss.__name__ = 'id_mrf_loss'
+    
+    partial_wasserstein_loss = partial(wasserstein_loss,
+                                       wgan_loss_weight=self.adversarial_loss_weight)
+    
+    partial_wasserstein_loss.__name__ = 'wasserstein_loss'
+    
     if self.warm_up_generator:
       # set Wasserstein loss to 0 - total generator loss will be based only on reconstruction loss
       generator_model.compile(optimizer=self.generator_optimizer,
-                              loss=[partial_cr_loss, id_mrf_loss, wasserstein_loss,
-                                    wasserstein_loss],
+                              loss=[partial_cr_loss, partial_id_mrf_loss, partial_wasserstein_loss,
+                                    partial_wasserstein_loss],
                               loss_weights=[1., 0., 0., 0.])
     else:
       generator_model.compile(optimizer=self.generator_optimizer,
-                              loss=[partial_cr_loss, id_mrf_loss, wasserstein_loss,
-                                    wasserstein_loss], loss_weights=[1., 0.05, 0.001, 0.001])
+                              loss=[partial_cr_loss, partial_id_mrf_loss, partial_wasserstein_loss,
+                                    partial_wasserstein_loss])
     
     return generator_model
   
@@ -110,7 +125,7 @@ class GMCNNGan(WassersteinGAN):
     # samples here.
     partial_gp_loss = partial(gradient_penalty_loss,
                               averaged_samples=averaged_samples,
-                              gradient_penalty_weight=self.gradient_penalty_weight)
+                              gradient_penalty_weight=self.gradient_penalty_loss_weight)
     # Functions need names or Keras will throw an error
     partial_gp_loss.__name__ = 'gradient_penalty'
     
@@ -142,7 +157,7 @@ class GMCNNGan(WassersteinGAN):
     
     partial_gp_loss = partial(gradient_penalty_loss,
                               averaged_samples=averaged_samples,
-                              gradient_penalty_weight=self.gradient_penalty_weight)
+                              gradient_penalty_weight=self.gradient_penalty_loss_weight)
     partial_gp_loss.__name__ = 'gradient_penalty'
     
     local_discriminator_model = Model(inputs=[real_samples, generator_inputs, generator_masks],

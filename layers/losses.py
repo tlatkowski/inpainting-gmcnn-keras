@@ -16,7 +16,7 @@ def reconstruction_loss(y_true, y_pred):
   return l1
 
 
-def wasserstein_loss(y_true, y_pred):
+def wasserstein_loss(y_true, y_pred, wgan_loss_weight=1.0):
   """Calculates the Wasserstein loss for a sample batch.
   The Wasserstein loss function is very simple to calculate. In a standard GAN, the
   discriminator has a sigmoid output, representing the probability that samples are
@@ -29,7 +29,7 @@ def wasserstein_loss(y_true, y_pred):
   outputs by the labels will give you the loss immediately.
   Note that the nature of this loss means that it can be (and frequently will be)
   less than 0."""
-  return K.mean(y_true * y_pred)
+  return wgan_loss_weight * K.mean(y_true * y_pred)
 
 
 def gradient_penalty_loss(y_true, y_pred, averaged_samples,
@@ -79,7 +79,7 @@ def confidence_reconstruction_loss(y_true, y_pred, mask, num_steps):
 
 
 # scale of im_src and im_dst: [-1, 1]
-def id_mrf_loss(y_true, y_pred):
+def id_mrf_loss(y_true, y_pred, id_mrf_loss_weight=1.0):
   vgg_model = vgg.build_vgg16(img_rows=128,
                               img_cols=128)
   # y_true = (y_true + 1) * 127.5
@@ -108,4 +108,4 @@ def id_mrf_loss(y_true, y_pred):
   mrf_content_loss = tf.reduce_sum(mrf_content_loss)
   
   id_mrf_loss = mrf_style_loss * mrf_style_w + mrf_content_loss * mrf_content_w
-  return id_mrf_loss
+  return id_mrf_loss_weight * id_mrf_loss

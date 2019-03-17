@@ -56,7 +56,9 @@ def main():
                                        learning_rate=config.training.learning_rate,
                                        n_critic=config.training.wgan_training_ratio,
                                        num_gaussian_steps=config.model.num_gaussian_steps,
-                                       gradient_penalty_weight=config.model.gradient_penalty_weight)
+                                       gradient_penalty_loss_weight=config.model.gradient_penalty_loss_weight,
+                                       id_mrf_loss_weight=config.model.id_mrf_loss_weight,
+                                       adversarial_loss_weight=config.model.adversarial_loss_weight)
   
   if args.from_weights:
     log.info('Continue training from checkpoint...')
