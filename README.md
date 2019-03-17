@@ -96,15 +96,22 @@ python runner.py --train_path /path/to/training/images --mask_path /path/to/mask
 ```
 
 ### Warm-up generator training
-According to the best practices of the usage of GAN frameworks, we should train the generator model for a while. In order to train the generator in the first line run the following command:
+According to the best practices of the usage of GAN frameworks, firstly we should train the generator model for a while. In order to train the generator only in the first line run the following command:
 ```bash
 python runner.py --train_path /path/to/training/images --mask_path /path/to/mask/images -warm_up_generator
 ```
+In this mode the generator will be trained with only confidence-driven reconstruction loss.
 
+### WGAN-GP training
+In order to continue training with full WGAN-GP framework (GMCNN generator, local and global discriminator), execute:
+```bash
+python runner.py --train_path /path/to/training/images --mask_path /path/to/mask/images -from_weights
+```
 
-The pipeline logs training results to the **outputs** folder:
+During the training procedure pipeline logs additional results to the **outputs** folder:
 * **outputs/logs** contains TensorBoard logs
-* **outputs/predicted_pics** contains the samples of model prediction for specific epochs
+* **outputs/predicted_pics/warm_up_generator** contains the model outputs for specific epochs in warm up generator training mode
+* **outputs/predicted_pics/wgan** contains the model outputs for specific epochs in WGAN training mode
 * **outputs/weights** contains the generator and critics model weights
 * **outputs/summaries** contains the generator and critics model summaries
 
