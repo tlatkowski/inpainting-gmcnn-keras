@@ -11,7 +11,6 @@ from utils import id_mrf_utils
 
 def reconstruction_loss(y_true, y_pred):
   diff = K.abs(y_pred - y_true)
-  # l1 = K.sum(diff, axis=[1, 2, 3])
   l1 = K.mean(diff, axis=[1, 2, 3])
   return l1
 
@@ -73,17 +72,12 @@ def confidence_reconstruction_loss(y_true, y_pred, mask, num_steps):
   mask_blurred = gaussian_utils.blur_mask(mask, num_steps)
   valid_mask = 1 - mask
   diff = K.abs(y_true - y_pred)
-  # l1 = K.sum(diff * valid_mask + diff * mask_blurred, axis=[1, 2, 3])
   l1 = K.mean(diff * valid_mask + diff * mask_blurred, axis=[1, 2, 3])
   return l1
 
 
-# scale of im_src and im_dst: [-1, 1]
-def id_mrf_loss(y_true, y_pred, id_mrf_loss_weight=1.0):
-  vgg_model = vgg.build_vgg16(img_rows=128,
-                              img_cols=128)
-  # y_true = (y_true + 1) * 127.5
-  # y_pred = (y_pred + 1) * 127.5
+def id_mrf_loss(y_true, y_pred, id_mrf_loss_weight=1.0, use_original_vgg_shape=False):
+  vgg_model = vgg.build_vgg16(y_pred, use_original_vgg_shape)
   
   y_pred_vgg = vgg_model(y_pred)
   y_true_vgg = vgg_model(y_true)

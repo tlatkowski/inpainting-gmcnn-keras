@@ -92,7 +92,7 @@ def main():
                                       img_height=config.training.img_height,
                                       img_width=config.training.img_width,
                                       num_epochs=config.training.num_epochs,
-                                      save_model_epoch_period=config.training.save_model_epoch_period)
+                                      save_model_steps_period=config.training.save_model_steps_period)
   
   gmcnn_gan_trainer.train()
 

@@ -20,7 +20,7 @@ class TrainingConfig:
     self.img_height = int(training_section['IMG_HEIGHT'])
     self.img_width = int(training_section['IMG_WIDTH'])
     self.num_channels = int(training_section['NUM_CHANNELS'])
-    self.save_model_epoch_period = int(training_section['SAVE_MODEL_EPOCH_PERIOD'])
+    self.save_model_steps_period = int(training_section['SAVE_MODEL_STEPS_PERIOD'])
 
 
 class ModelConfig:

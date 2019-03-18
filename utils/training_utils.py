@@ -18,7 +18,7 @@ def create_standard_log(generator_loss: namedtuple, global_discriminator_loss: n
 
 
 def create_warm_up_log(generator_loss):
-  logs = {'reconstruction_loss': generator_loss[0]}
+  logs = {'confidence_reconstruction_loss': generator_loss[0]}
   return logs
 
 
