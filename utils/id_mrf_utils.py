@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from utils import contextual_similarity
+from utils import contextual_similarity_utills
 from utils import training_utils
 
 log = training_utils.get_logger()
@@ -54,8 +54,7 @@ def random_pooling(feats, output_1d_size, batch_size):
     res.append(feats_sampled_i)
   
   res = [tf.reshape(feats_sampled_i, [batch_size, output_1d_size, output_1d_size, C]) for
-         feats_sampled_i in
-         res]
+         feats_sampled_i in res]
   if is_input_tensor:
     return res[0]
   return res
@@ -66,12 +65,12 @@ def mrf_loss(y_pred_vgg, y_true_vgg, batch_size, nnsigma=float(1.0)):
   y_true_vgg = tf.convert_to_tensor(y_true_vgg, dtype=tf.float32)
   
   with tf.name_scope('cx'):
-    cs_flow = contextual_similarity.create_using_dot_product(y_true_vgg, y_pred_vgg,batch_size, nnsigma)
+    cs_sim = contextual_similarity_utills.calculate_cs_sim(y_true_vgg, y_pred_vgg, batch_size,
+                                                           nnsigma)
     # sum_normalize:
     height_width_axis = [1, 2]
     # To:
-    cs = cs_flow.cs_NHWC
-    k_max_NC = tf.reduce_max(cs, axis=height_width_axis)
+    k_max_NC = tf.reduce_max(cs_sim, axis=height_width_axis)
     contextual_similarites = tf.reduce_mean(k_max_NC, axis=[1])
     CS_loss = -tf.log(contextual_similarites)
     CS_loss = tf.reduce_mean(CS_loss)

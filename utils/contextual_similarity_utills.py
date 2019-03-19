@@ -1,36 +1,32 @@
 import tensorflow as tf
 
 
-class ContextualSimilarity:
+def calculate_contextual_similarity(scaled_distances, sigma=float(0.1), b=float(1.0),
+                                    axis_for_normalization=3):
+  cs_weights_before_normalization = tf.exp((b - scaled_distances) / sigma,
+                                           name='weights_before_normalization')
+  cs_sim = sum_normalize(cs_weights_before_normalization, axis_for_normalization)
+  return cs_sim
+
+
+def extract_patches(y_pred_vgg):
+  # patch decomposition
+  patch_size = 1
+  patches_as_depth_vectors = tf.extract_image_patches(
+    images=y_pred_vgg, ksizes=[1, patch_size, patch_size, 1],
+    strides=[1, 1, 1, 1], rates=[1, 1, 1, 1], padding='VALID',
+    name='patches_as_depth_vectors')
   
-  def __init__(self, sigma=float(0.1), b=float(1.0)):
-    self.b = b
-    self.sigma = sigma
+  patches_NHWC = tf.reshape(patches_as_depth_vectors,
+                            shape=[-1, patch_size, patch_size,
+                                   patches_as_depth_vectors.shape[3].value],
+                            name='patches_PHWC')
   
-  def calculate_contextual_similarity(self, scaled_distances, axis_for_normalization=3):
-    # self.scaled_distances = scaled_distances
-    cs_weights_before_normalization = tf.exp((self.b - scaled_distances) / self.sigma,
-                                                  name='weights_before_normalization')
-    self.cs_NHWC = sum_normalize(cs_weights_before_normalization, axis_for_normalization)
+  patches_HWCN = tf.transpose(patches_NHWC,
+                              perm=[1, 2, 3, 0],
+                              name='patches_HWCP')  # tf.conv2 ready format
   
-  def patch_decomposition(self, y_pred_vgg):
-    # patch decomposition
-    patch_size = 1
-    patches_as_depth_vectors = tf.extract_image_patches(
-      images=y_pred_vgg, ksizes=[1, patch_size, patch_size, 1],
-      strides=[1, 1, 1, 1], rates=[1, 1, 1, 1], padding='VALID',
-      name='patches_as_depth_vectors')
-    
-    self.patches_NHWC = tf.reshape(patches_as_depth_vectors,
-                                   shape=[-1, patch_size, patch_size,
-                                          patches_as_depth_vectors.shape[3].value],
-                                   name='patches_PHWC')
-    
-    self.patches_HWCN = tf.transpose(self.patches_NHWC,
-                                     perm=[1, 2, 3, 0],
-                                     name='patches_HWCP')  # tf.conv2 ready format
-    
-    return self.patches_HWCN
+  return patches_HWCN
 
 
 def calc_relative_distances(raw_distances, axis=3):
@@ -41,9 +37,8 @@ def calc_relative_distances(raw_distances, axis=3):
   return relative_dist
 
 
-def create_using_dot_product(y_true_vgg, y_pred_vgg, batch_size, sigma=float(1.0), b=float(1.0)):
-  cs_flow = ContextualSimilarity(sigma, b)
-  with tf.name_scope('CS'):
+def calculate_cs_sim(y_true_vgg, y_pred_vgg, batch_size, sigma=float(1.0), b=float(1.0)):
+  with tf.name_scope('contextual_similarity'):
     # prepare feature before calculating cosine distance
     y_pred_vgg, y_true_vgg = center_by_predicted(y_pred_vgg, y_true_vgg)
     with tf.name_scope('y_pred_vgg/norm'):
@@ -55,18 +50,18 @@ def create_using_dot_product(y_true_vgg, y_pred_vgg, batch_size, sigma=float(1.0
       for i in range(batch_size):
         y_pred_vgg_i = tf.expand_dims(y_pred_vgg[i, :, :, :], 0)
         y_true_vgg_i = tf.expand_dims(y_true_vgg[i, :, :, :], 0)
-        patches_i = cs_flow.patch_decomposition(y_pred_vgg_i)
+        patches_i = extract_patches(y_pred_vgg_i)
         cosine_dist_i = tf.nn.conv2d(y_true_vgg_i, patches_i, strides=[1, 1, 1, 1],
                                      padding='VALID', use_cudnn_on_gpu=True, name='cosine_dist')
         cosine_dist_l.append(cosine_dist_i)
       
-      cs_flow.cosine_dist = tf.concat(cosine_dist_l, axis=0)
+      cosine_dist = tf.concat(cosine_dist_l, axis=0)
       
-      cosine_dist_zero_to_one = -(cs_flow.cosine_dist - 1) / 2
+      cosine_dist_zero_to_one = -(cosine_dist - 1) / 2
       
       relative_dist = calc_relative_distances(cosine_dist_zero_to_one)
-      cs_flow.calculate_contextual_similarity(relative_dist)
-      return cs_flow
+      cs_sim = calculate_contextual_similarity(relative_dist)
+      return cs_sim
 
 
 def center_by_predicted(y_pred_vgg, y_true_vgg):
