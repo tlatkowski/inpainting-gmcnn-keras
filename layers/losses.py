@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-from easydict import EasyDict as edict
+from easydict import EasyDict as edict # TODO remove it
 from keras.backend import tensorflow_backend as K
 
 from models import vgg
