@@ -1,6 +1,5 @@
 import numpy as np
 import tensorflow as tf
-from easydict import EasyDict as edict # TODO remove it
 from keras.backend import tensorflow_backend as K
 
 from models import vgg
@@ -87,10 +86,10 @@ def id_mrf_loss(y_true, y_pred, nn_stretch_sigma, batch_size, vgg_16_layers, id_
   mrf_style_w = 1.0
   mrf_content_w = 1.0
   
-  mrf_config = edict()
-  mrf_config.crop_quarters = False
-  mrf_config.max_sampling_1d_size = 65
-  mrf_config.nn_stretch_sigma = nn_stretch_sigma  # 0.1
+  mrf_config = dict()
+  mrf_config['crop_quarters'] = False
+  mrf_config['max_sampling_1d_size'] = 65
+  mrf_config['nn_stretch_sigma'] = nn_stretch_sigma  # 0.1
   
   mrf_style_loss = [
     id_mrf_utils.id_mrf_reg_feat(y_pred_vgg[layer], y_true_vgg[layer], mrf_config, batch_size)

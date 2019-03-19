@@ -7,20 +7,20 @@ log = training_utils.get_logger()
 
 
 def id_mrf_reg_feat(y_pred_vgg, y_true_vgg, config, batch_size):
-  if config.crop_quarters is True:
+  if config['crop_quarters'] is True:
     y_pred_vgg = crop_quarters(y_pred_vgg)
     y_true_vgg = crop_quarters(y_true_vgg)
   
   N, fH, fW, fC = y_pred_vgg.shape.as_list()
-  if fH * fW <= config.max_sampling_1d_size ** 2:
+  if fH * fW <= config['max_sampling_1d_size'] ** 2:
     log.info(' #### Skipping pooling ....')
   else:
-    log.info(' #### pooling %d**2 out of %dx%d' % (config.max_sampling_1d_size, fH, fW))
+    log.info(' #### pooling %d**2 out of %dx%d' % (config['max_sampling_1d_size'], fH, fW))
     y_pred_vgg, y_true_vgg = random_pooling([y_pred_vgg, y_true_vgg],
-                                            output_1d_size=config.max_sampling_1d_size,
+                                            output_1d_size=config['max_sampling_1d_size'],
                                             batch_size=batch_size)
   
-  return mrf_loss(y_pred_vgg, y_true_vgg, batch_size, nnsigma=config.nn_stretch_sigma)
+  return mrf_loss(y_pred_vgg, y_true_vgg, batch_size, nnsigma=config['nn_stretch_sigma'])
 
 
 def crop_quarters(feature_tensor):
