@@ -74,17 +74,14 @@ def confidence_reconstruction_loss(y_true, y_pred, mask, num_steps):
   return l1
 
 
-def id_mrf_loss(y_true, y_pred, nn_stretch_sigma, batch_size, vgg_16_layers, id_mrf_loss_weight=1.0,
-                use_original_vgg_shape=False):
+def id_mrf_loss(y_true, y_pred, nn_stretch_sigma, batch_size, vgg_16_layers, id_mrf_style_weight,
+                id_mrf_content_weight, id_mrf_loss_weight=1.0, use_original_vgg_shape=False):
   vgg_model = vgg.build_vgg16(y_pred, use_original_vgg_shape, vgg_16_layers)
   
   y_pred_vgg = vgg_model(y_pred)
   y_true_vgg = vgg_model(y_true)
   feat_style_layers = [1, 2]
   feat_content_layers = [0]
-  
-  mrf_style_w = 1.0
-  mrf_content_w = 1.0
   
   mrf_config = dict()
   mrf_config['crop_quarters'] = False
@@ -101,5 +98,5 @@ def id_mrf_loss(y_true, y_pred, nn_stretch_sigma, batch_size, vgg_16_layers, id_
     for layer in feat_content_layers]
   mrf_content_loss = tf.reduce_sum(mrf_content_loss)
   
-  id_mrf_loss = mrf_style_loss * mrf_style_w + mrf_content_loss * mrf_content_w
+  id_mrf_loss = mrf_style_loss * id_mrf_style_weight + mrf_content_loss * id_mrf_content_weight
   return id_mrf_loss_weight * id_mrf_loss

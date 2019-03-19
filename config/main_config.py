@@ -38,3 +38,5 @@ class ModelConfig:
     self.num_gaussian_steps = int(model_section['NUM_GAUSSIAN_STEPS'])
     self.nn_stretch_sigma = float(model_section['NN_STRETCH_SIGMA'])
     self.vgg_16_layers = parse_list(model_section['VGG_16_LAYERS'])
+    self.id_mrf_style_weight = float(model_section['ID_MRF_STYLE_WEIGHT'])
+    self.id_mrf_content_weight = float(model_section['ID_MRF_CONTENT_WEIGHT'])
