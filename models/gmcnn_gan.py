@@ -13,23 +13,23 @@ from models.wgan import WassersteinGAN
 
 class GMCNNGan(WassersteinGAN):
   
-  def __init__(self, batch_size, img_height, img_width, num_channels=3, warm_up_generator=False,
-               learning_rate=0.0001, n_critic=5, num_gaussian_steps=3,
-               gradient_penalty_loss_weight=10, id_mrf_loss_weight=0.05,
-               adversarial_loss_weight=0.001):
-    super(GMCNNGan, self).__init__(img_height, img_width, num_channels, batch_size, n_critic)
+  def __init__(self, batch_size, img_height, img_width, num_channels, warm_up_generator, config):
+    super(GMCNNGan, self).__init__(img_height, img_width, num_channels, batch_size,
+                                   config.training.wgan_training_ratio)
     
     self.img_height = img_height
     self.img_width = img_width
     self.num_channels = num_channels
     self.warm_up_generator = warm_up_generator
-    self.num_gaussian_steps = num_gaussian_steps
-    self.gradient_penalty_loss_weight = gradient_penalty_loss_weight
-    self.id_mrf_loss_weight = id_mrf_loss_weight
-    self.adversarial_loss_weight = adversarial_loss_weight
+    self.learning_rate = config.training.learning_rate
+    self.num_gaussian_steps = config.model.num_gaussian_steps
+    self.gradient_penalty_loss_weight = config.model.gradient_penalty_loss_weight
+    self.id_mrf_loss_weight = config.model.id_mrf_loss_weight
+    self.adversarial_loss_weight = config.model.adversarial_loss_weight
+    self.nn_stretch_sigma = config.model.nn_stretch_sigma
     
-    self.generator_optimizer = Adam(lr=learning_rate, beta_1=0.5, beta_2=0.9)
-    self.discriminator_optimizer = Adam(lr=learning_rate, beta_1=0.5, beta_2=0.9)
+    self.generator_optimizer = Adam(lr=self.learning_rate, beta_1=0.5, beta_2=0.9)
+    self.discriminator_optimizer = Adam(lr=self.learning_rate, beta_1=0.5, beta_2=0.9)
     
     self.local_discriminator_raw = LocalDiscriminator(self.img_height, self.img_width,
                                                       self.num_channels)
@@ -81,6 +81,8 @@ class GMCNNGan(WassersteinGAN):
     partial_cr_loss.__name__ = 'confidence_reconstruction_loss'
     
     partial_id_mrf_loss = partial(id_mrf_loss,
+                                  nn_stretch_sigma=self.nn_stretch_sigma,
+                                  batch_size=self.batch_size,
                                   id_mrf_loss_weight=self.id_mrf_loss_weight)
     
     partial_id_mrf_loss.__name__ = 'id_mrf_loss'

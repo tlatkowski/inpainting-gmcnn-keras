@@ -4,7 +4,6 @@ from easydict import EasyDict as edict
 from keras.backend import tensorflow_backend as K
 
 from models import vgg
-from utils import contextual_similarity
 from utils import gaussian_utils
 from utils import id_mrf_utils
 
@@ -76,7 +75,8 @@ def confidence_reconstruction_loss(y_true, y_pred, mask, num_steps):
   return l1
 
 
-def id_mrf_loss(y_true, y_pred, id_mrf_loss_weight=1.0, use_original_vgg_shape=False):
+def id_mrf_loss(y_true, y_pred, nn_stretch_sigma, batch_size, id_mrf_loss_weight=1.0,
+                use_original_vgg_shape=False):
   vgg_model = vgg.build_vgg16(y_pred, use_original_vgg_shape)
   
   y_pred_vgg = vgg_model(y_pred)
@@ -90,15 +90,16 @@ def id_mrf_loss(y_true, y_pred, id_mrf_loss_weight=1.0, use_original_vgg_shape=F
   mrf_config = edict()
   mrf_config.crop_quarters = False
   mrf_config.max_sampling_1d_size = 65
-  mrf_config.Dist = contextual_similarity.Distance.DotProduct
-  mrf_config.nn_stretch_sigma = 0.5  # 0.1
+  mrf_config.nn_stretch_sigma = nn_stretch_sigma  # 0.1
   
-  mrf_style_loss = [id_mrf_utils.id_mrf_reg_feat(y_pred_vgg[layer], y_true_vgg[layer], mrf_config)
-                    for layer in feat_style_layers]
+  mrf_style_loss = [
+    id_mrf_utils.id_mrf_reg_feat(y_pred_vgg[layer], y_true_vgg[layer], mrf_config, batch_size)
+    for layer in feat_style_layers]
   mrf_style_loss = tf.reduce_sum(mrf_style_loss)
   
-  mrf_content_loss = [id_mrf_utils.id_mrf_reg_feat(y_pred_vgg[layer], y_true_vgg[layer], mrf_config)
-                      for layer in feat_content_layers]
+  mrf_content_loss = [
+    id_mrf_utils.id_mrf_reg_feat(y_pred_vgg[layer], y_true_vgg[layer], mrf_config, batch_size)
+    for layer in feat_content_layers]
   mrf_content_loss = tf.reduce_sum(mrf_content_loss)
   
   id_mrf_loss = mrf_style_loss * mrf_style_w + mrf_content_loss * mrf_content_w

@@ -30,3 +30,4 @@ class ModelConfig:
     self.id_mrf_loss_weight = float(model_section['ID_MRF_LOSS_WEIGHT'])
     self.adversarial_loss_weight = float(model_section['ADVERSARIAL_LOSS_WEIGHT'])
     self.num_gaussian_steps = int(model_section['NUM_GAUSSIAN_STEPS'])
+    self.nn_stretch_sigma = float(model_section['NN_STRETCH_SIGMA'])

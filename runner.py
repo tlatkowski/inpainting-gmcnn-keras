@@ -53,12 +53,7 @@ def main():
                                        img_width=config.training.img_width,
                                        num_channels=config.training.num_channels,
                                        warm_up_generator=args.warm_up_generator,
-                                       learning_rate=config.training.learning_rate,
-                                       n_critic=config.training.wgan_training_ratio,
-                                       num_gaussian_steps=config.model.num_gaussian_steps,
-                                       gradient_penalty_loss_weight=config.model.gradient_penalty_loss_weight,
-                                       id_mrf_loss_weight=config.model.id_mrf_loss_weight,
-                                       adversarial_loss_weight=config.model.adversarial_loss_weight)
+                                       config=config)
   
   if args.from_weights:
     log.info('Continue training from checkpoint...')
