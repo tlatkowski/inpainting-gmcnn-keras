@@ -4,21 +4,20 @@ from keras.applications.vgg16 import preprocess_input
 from keras.layers import Input, Lambda
 from keras.models import Model
 
-VGG_LAYERS = [3, 6, 10]
 ORIGINAL_VGG_16_SHAPE = (224, 224, 3)
 
 
-def build_vgg16(y_pred, use_original_vgg_shape):
+def build_vgg16(y_pred, use_original_vgg_shape, vgg_layers):
   """
   Load pre-trained VGG16 from keras applications
   """
   if use_original_vgg_shape:
-    return build_vgg_original_shape(y_pred)
+    return build_vgg_original_shape(y_pred, vgg_layers)
   else:
-    return build_vgg_img_shape(y_pred)
+    return build_vgg_img_shape(y_pred, vgg_layers)
 
 
-def build_vgg_original_shape(y_pred, vgg_layers=VGG_LAYERS):
+def build_vgg_original_shape(y_pred, vgg_layers):
   input_shape = y_pred.shape.as_list()[1:4]
   img = Input(shape=input_shape)
   
@@ -39,7 +38,7 @@ def build_vgg_original_shape(y_pred, vgg_layers=VGG_LAYERS):
   return model
 
 
-def build_vgg_img_shape(y_pred, vgg_layers=VGG_LAYERS):
+def build_vgg_img_shape(y_pred, vgg_layers):
   input_shape = y_pred.shape.as_list()[1:4]
   img = Input(shape=input_shape)
   

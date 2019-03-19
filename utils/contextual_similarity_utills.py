@@ -29,7 +29,7 @@ def extract_patches(y_pred_vgg):
   return patches_HWCN
 
 
-def calc_relative_distances(raw_distances, axis=3):
+def calculate_relative_distances(raw_distances, axis=3):
   epsilon = 1e-5
   div = tf.reduce_min(raw_distances, axis=axis, keepdims=True)
   # div = tf.reduce_mean(self.raw_distances, axis=axis, keep_dims=True)
@@ -42,9 +42,9 @@ def calculate_cs_sim(y_true_vgg, y_pred_vgg, batch_size, sigma=float(1.0), b=flo
     # prepare feature before calculating cosine distance
     y_pred_vgg, y_true_vgg = center_by_predicted(y_pred_vgg, y_true_vgg)
     with tf.name_scope('y_pred_vgg/norm'):
-      y_pred_vgg = l2_normalize_channelwise(y_pred_vgg)
+      y_pred_vgg = l2_normalize_channel_wise(y_pred_vgg)
     with tf.name_scope('y_true_vgg/norm'):
-      y_true_vgg = l2_normalize_channelwise(y_true_vgg)
+      y_true_vgg = l2_normalize_channel_wise(y_true_vgg)
       # work seperatly for each example in dim 1
       cosine_dist_l = []
       for i in range(batch_size):
@@ -59,7 +59,7 @@ def calculate_cs_sim(y_true_vgg, y_pred_vgg, batch_size, sigma=float(1.0), b=flo
       
       cosine_dist_zero_to_one = -(cosine_dist - 1) / 2
       
-      relative_dist = calc_relative_distances(cosine_dist_zero_to_one)
+      relative_dist = calculate_relative_distances(cosine_dist_zero_to_one)
       cs_sim = calculate_contextual_similarity(relative_dist)
       return cs_sim
 
@@ -85,7 +85,7 @@ def center_by_predicted(y_pred_vgg, y_true_vgg):
   return y_pred_vgg_centered, y_true_vgg_centered
 
 
-def l2_normalize_channelwise(features):
+def l2_normalize_channel_wise(features):
   norms = tf.norm(features, ord='euclidean', axis=3, name='norm')
   # expanding the norms tensor to support broadcast division
   norms_expanded = tf.expand_dims(norms, 3)

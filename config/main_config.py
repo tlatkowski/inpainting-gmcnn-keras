@@ -1,6 +1,12 @@
 import configparser
 
 
+def parse_list(x: str):
+  values = x.strip().split(',')
+  values = [int(v) for v in values]
+  return values
+
+
 class MainConfig:
   
   def __init__(self, config_path):
@@ -31,3 +37,4 @@ class ModelConfig:
     self.adversarial_loss_weight = float(model_section['ADVERSARIAL_LOSS_WEIGHT'])
     self.num_gaussian_steps = int(model_section['NUM_GAUSSIAN_STEPS'])
     self.nn_stretch_sigma = float(model_section['NN_STRETCH_SIGMA'])
+    self.vgg_16_layers = parse_list(model_section['VGG_16_LAYERS'])

@@ -75,9 +75,9 @@ def confidence_reconstruction_loss(y_true, y_pred, mask, num_steps):
   return l1
 
 
-def id_mrf_loss(y_true, y_pred, nn_stretch_sigma, batch_size, id_mrf_loss_weight=1.0,
+def id_mrf_loss(y_true, y_pred, nn_stretch_sigma, batch_size, vgg_16_layers, id_mrf_loss_weight=1.0,
                 use_original_vgg_shape=False):
-  vgg_model = vgg.build_vgg16(y_pred, use_original_vgg_shape)
+  vgg_model = vgg.build_vgg16(y_pred, use_original_vgg_shape, vgg_16_layers)
   
   y_pred_vgg = vgg_model(y_pred)
   y_true_vgg = vgg_model(y_true)

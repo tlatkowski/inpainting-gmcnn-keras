@@ -3,6 +3,7 @@ from functools import partial
 from keras.models import Model, Input
 from keras.optimizers import Adam
 
+from config import main_config
 from layers import custom_layers
 from layers.losses import wasserstein_loss, gradient_penalty_loss, \
   confidence_reconstruction_loss, id_mrf_loss
@@ -13,7 +14,8 @@ from models.wgan import WassersteinGAN
 
 class GMCNNGan(WassersteinGAN):
   
-  def __init__(self, batch_size, img_height, img_width, num_channels, warm_up_generator, config):
+  def __init__(self, batch_size, img_height, img_width, num_channels, warm_up_generator,
+               config: main_config.MainConfig):
     super(GMCNNGan, self).__init__(img_height, img_width, num_channels, batch_size,
                                    config.training.wgan_training_ratio)
     
@@ -27,6 +29,7 @@ class GMCNNGan(WassersteinGAN):
     self.id_mrf_loss_weight = config.model.id_mrf_loss_weight
     self.adversarial_loss_weight = config.model.adversarial_loss_weight
     self.nn_stretch_sigma = config.model.nn_stretch_sigma
+    self.vgg_16_layers = config.model.vgg_16_layers
     
     self.generator_optimizer = Adam(lr=self.learning_rate, beta_1=0.5, beta_2=0.9)
     self.discriminator_optimizer = Adam(lr=self.learning_rate, beta_1=0.5, beta_2=0.9)
@@ -83,6 +86,7 @@ class GMCNNGan(WassersteinGAN):
     partial_id_mrf_loss = partial(id_mrf_loss,
                                   nn_stretch_sigma=self.nn_stretch_sigma,
                                   batch_size=self.batch_size,
+                                  vgg_16_layers=self.vgg_16_layers,
                                   id_mrf_loss_weight=self.id_mrf_loss_weight)
     
     partial_id_mrf_loss.__name__ = 'id_mrf_loss'
