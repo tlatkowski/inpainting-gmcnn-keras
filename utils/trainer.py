@@ -73,7 +73,7 @@ class Trainer:
           input_mask = np.expand_dims(mask[0], 0)
           predicted_img = self.gan_model.predict(inputs=[input_img, input_mask])
           training_utils.log_predicted_img(self.predicted_img_path, input_img, predicted_img,
-                                           input_mask, step)
+                                           input_mask, global_step)
           self.gan_model.save()
         
         tensorboard.on_epoch_end(global_step, logs)

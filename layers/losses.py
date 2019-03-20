@@ -1,5 +1,4 @@
 import numpy as np
-import tensorflow as tf
 from keras.backend import tensorflow_backend as K
 
 from models import vgg
@@ -66,8 +65,10 @@ def gradient_penalty_loss(y_true, y_pred, averaged_samples,
   return K.mean(gradient_penalty)
 
 
-def confidence_reconstruction_loss(y_true, y_pred, mask, num_steps):
-  mask_blurred = gaussian_utils.blur_mask(mask, num_steps)
+def confidence_reconstruction_loss(y_true, y_pred, mask, num_steps, gaussian_kernel_size,
+                                   gaussian_kernel_std):
+  mask_blurred = gaussian_utils.blur_mask(mask, num_steps, gaussian_kernel_size,
+                                          gaussian_kernel_std)
   valid_mask = 1 - mask
   diff = K.abs(y_true - y_pred)
   l1 = K.mean(diff * valid_mask + diff * mask_blurred, axis=[1, 2, 3])
@@ -76,27 +77,25 @@ def confidence_reconstruction_loss(y_true, y_pred, mask, num_steps):
 
 def id_mrf_loss(y_true, y_pred, nn_stretch_sigma, batch_size, vgg_16_layers, id_mrf_style_weight,
                 id_mrf_content_weight, id_mrf_loss_weight=1.0, use_original_vgg_shape=False):
+  
   vgg_model = vgg.build_vgg16(y_pred, use_original_vgg_shape, vgg_16_layers)
   
   y_pred_vgg = vgg_model(y_pred)
   y_true_vgg = vgg_model(y_true)
-  feat_style_layers = [1, 2]
-  feat_content_layers = [0]
+  content_layers = [0]
+  style_layers = [1, 2]
   
-  mrf_config = dict()
-  mrf_config['crop_quarters'] = False
-  mrf_config['max_sampling_1d_size'] = 65
-  mrf_config['nn_stretch_sigma'] = nn_stretch_sigma  # 0.1
+  id_mrf_config = dict()
+  id_mrf_config['crop_quarters'] = False
+  id_mrf_config['max_sampling_1d_size'] = 65
+  id_mrf_config['nn_stretch_sigma'] = nn_stretch_sigma
   
-  mrf_style_loss = [
-    id_mrf_utils.id_mrf_reg_feat(y_pred_vgg[layer], y_true_vgg[layer], mrf_config, batch_size)
-    for layer in feat_style_layers]
-  mrf_style_loss = tf.reduce_sum(mrf_style_loss)
+  id_mrf_style_loss = id_mrf_utils.id_mrf_loss_sum_for_layers(y_true_vgg, y_pred_vgg, style_layers,
+                                                              id_mrf_config, batch_size)
   
-  mrf_content_loss = [
-    id_mrf_utils.id_mrf_reg_feat(y_pred_vgg[layer], y_true_vgg[layer], mrf_config, batch_size)
-    for layer in feat_content_layers]
-  mrf_content_loss = tf.reduce_sum(mrf_content_loss)
+  id_mrf_content_loss = id_mrf_utils.id_mrf_loss_sum_for_layers(y_true_vgg, y_pred_vgg,
+                                                                content_layers, id_mrf_config,
+                                                                batch_size)
   
-  id_mrf_loss = mrf_style_loss * id_mrf_style_weight + mrf_content_loss * id_mrf_content_weight
-  return id_mrf_loss_weight * id_mrf_loss
+  id_mrf_loss_total = id_mrf_style_loss * id_mrf_style_weight + id_mrf_content_loss * id_mrf_content_weight
+  return id_mrf_loss_weight * id_mrf_loss_total

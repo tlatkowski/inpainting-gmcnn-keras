@@ -8,17 +8,17 @@
 ## Model architecture
 ![GMCNN model](./pics/models/gmcnn_model.png)
 
-## Dependencies
+## Installation
 * Code on this repository was tested on **Python 3.6** and **Ubuntu 14.04**
 * All required dependencies are stored in **requirements.txt**, **requirements-cpu.txt** and **requirements-gpu.txt** files.
 
 Code download:
 ```bash
-git clone https://github.com/tlatkowski/inpainting-gmcnn.git
-cd inpainting-gmcnn
+git clone https://github.com/tlatkowski/inpainting-gmcnn-keras.git
+cd inpainting-gmcnn-keras
 ```
 
-To install requirements, create Python virtual environment and install requirements from files:
+To install requirements, create Python virtual environment and install dependencies from files:
 ```bash
 virtualenv -p /usr/bin/python3.6 .venv
 source .venv/bin/activate
@@ -68,34 +68,36 @@ The default configuration looks as follows:
 [TRAINING]
 WGAN_TRAINING_RATIO = 5
 NUM_EPOCHS = 5
-BATCH_SIZE = 2
-IMG_HEIGHT = 128
-IMG_WIDTH = 128
+BATCH_SIZE = 1
+IMG_HEIGHT = 256
+IMG_WIDTH = 256
 NUM_CHANNELS = 3
 LEARNING_RATE = 0.0001
-SAVE_MODEL_STEPS_PERIOD = 100
+SAVE_MODEL_STEPS_PERIOD = 5000
 
 [MODEL]
 GRADIENT_PENALTY_LOSS_WEIGHT = 10
 ID_MRF_LOSS_WEIGHT = 0.05
 ADVERSARIAL_LOSS_WEIGHT = 0.001
+NN_STRETCH_SIGMA = 0.5
+VGG_16_LAYERS = 3,6,10
+ID_MRF_STYLE_WEIGHT = 1.0
+ID_MRF_CONTENT_WEIGHT = 1.0
 NUM_GAUSSIAN_STEPS = 3
+GAUSSIAN_KERNEL_SIZE = 32
+GAUSSIAN_KERNEL_STD = 40.0
+
 ```
 
-After dependencies installation you can perform dry-run using image and mask samples provided in **samples** directory. To do so, execute the following command:
+After the dependencies installation you can perform training dry-run using image and mask samples provided in **samples** directory. To do so, execute the following command:
 ```bash
 python runner.py --train_path ./samples/images --mask_path ./samples/masks
 ```
-If everything went correct you should be able to see progress bar logging basic training metrics.
+If everything goes correct you should be able to see the progress bar logging the basic training metrics.
 
-To run GMCNN model training on your training data you have to provide paths to your datasets:
+In order to run GMCNN model training on your training data you have to provide paths to your datasets:
 ```bash
 python runner.py --train_path /path/to/training/images --mask_path /path/to/mask/images
-```
-
-To continue training you should add **-from_weights** additional flag to training runner:
-```bash
-python runner.py --train_path /path/to/training/images --mask_path /path/to/mask/images -from_weights
 ```
 
 ### Warm-up generator training
@@ -111,14 +113,18 @@ In order to continue training with full WGAN-GP framework (GMCNN generator, loca
 python runner.py --train_path /path/to/training/images --mask_path /path/to/mask/images -from_weights
 ```
 
+Running training with additional **from_weights** flag will force pipeline to load the latest models checkpoints from **./outputs/weights/** directory. 
+
+### Pipeline outcomes
+
 During the training procedure the pipeline logs additional results to the **outputs** directory:
 * **outputs/logs** contains TensorBoard logs
-* **outputs/predicted_pics/warm_up_generator** contains the model outputs for specific epochs in the warm up generator training mode
-* **outputs/predicted_pics/wgan** contains the model outputs for specific epochs in the WGAN training mode
-* **outputs/weights** contains the generator and critics model weights
-* **outputs/summaries** contains the generator and critics model summaries
+* **outputs/predicted_pics/warm_up_generator** contains the model predictions for specific steps in the warm up generator training mode
+* **outputs/predicted_pics/wgan** contains the model predictions for specific steps in the WGAN-GP training mode
+* **outputs/weights** contains the generator and critics models weights
+* **outputs/summaries** contains the generator and critics models summaries
 
-You can track the metrics during training with usage of TensorBoard:
+You can track the metrics during the training with usage of TensorBoard:
 ```bash
 tensorboard --logdir=./outputs/logs
 ```
@@ -126,11 +132,11 @@ tensorboard --logdir=./outputs/logs
 ## Implementation differences from original paper
 
 1. This model is trained using NVIDIA's irregular mask test set whereas the original model is trained using randomly generated rectangle masks. 
-2. Current version of pipeline uses the higher-order features extracted from VGG16 model where as the original model utilizes VGG19.
+2. The current version of pipeline uses the higher-order features extracted from VGG16 model whereas the original model utilizes VGG19.
 
 ## Visualization of Gaussian blurring masks 
 
-Below you can find the visualisation of applying Gaussian blur to the training masks for the different number of convolution steps (number of iteration steps over the input raw mask). 
+Below you can find the visualization of applying Gaussian blur to the training masks for the different number of convolution steps (number of iteration steps over the input raw mask). 
 
 #### Large mask
 Original | 1 step | 2 steps | 3 steps | 4 steps | 5 steps | 10 steps
@@ -151,6 +157,11 @@ Original | 1 step | 2 steps | 3 steps | 4 steps | 5 steps | 10 steps
 
 ## Visualization of training losses
 
+After activating TensorBoard you can monitor the training metrics:
+1. For the generator: confidence reconstruction loss, global wasserstein loss, local wasserstein loss, id mrf loss and total loss
+2. For the local and global discriminators: fake loss, real loss, gradient penalty loss and total loss
+
+![](https://github.com/tlatkowski/inpainting-gmcnn/blob/master/pics/tb_log.png)
 
 ## Code References
 

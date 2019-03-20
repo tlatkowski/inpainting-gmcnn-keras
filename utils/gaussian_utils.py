@@ -9,10 +9,11 @@ def gaussian_kernel(size: int, mean: float, std: float, ):
   return gauss_kernel / tf.reduce_sum(gauss_kernel)
 
 
-def blur_mask(mask, num_conv_steps):
+def blur_mask(mask, num_conv_steps, gaussian_kernel_size, gaussian_kernel_std):
   mask = tf.convert_to_tensor(mask, dtype=tf.float32)
   mask = tf.expand_dims(mask[:, :, :, 0], 3)
-  gaussian_filter = gaussian_kernel(size=32, mean=0.0, std=40.0)
+  # gaussian_filter = gaussian_kernel(size=32, mean=0.0, std=40.0)
+  gaussian_filter = gaussian_kernel(size=gaussian_kernel_size, mean=0.0, std=gaussian_kernel_std)
   gaussian_filter = gaussian_filter[:, :, tf.newaxis, tf.newaxis]
   neg_mask = 1 - mask
   m_w = 0

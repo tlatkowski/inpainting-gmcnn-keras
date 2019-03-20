@@ -6,16 +6,26 @@ from utils import training_utils
 log = training_utils.get_logger()
 
 
-def id_mrf_reg_feat(y_pred_vgg, y_true_vgg, config, batch_size):
+def id_mrf_loss_sum_for_layers(y_true_vgg, y_pred_vgg, layers, mrf_config, batch_size):
+  id_mrf_losses = []
+  for layer in layers:
+    l = id_mrf_on_features(y_pred_vgg[layer], y_true_vgg[layer], mrf_config, batch_size)
+    id_mrf_losses.append(l)
+  id_mrf_loss_total = tf.reduce_sum(id_mrf_losses)
+  return id_mrf_loss_total
+
+
+def id_mrf_on_features(y_pred_vgg, y_true_vgg, config, batch_size):
   if config['crop_quarters'] is True:
     y_pred_vgg = crop_quarters(y_pred_vgg)
     y_true_vgg = crop_quarters(y_true_vgg)
   
-  N, fH, fW, fC = y_pred_vgg.shape.as_list()
+  _, fH, fW, fC = y_pred_vgg.shape.as_list()
   if fH * fW <= config['max_sampling_1d_size'] ** 2:
-    log.info(' #### Skipping pooling ....')
+    log.info(' #### Skipping random pooling ...')
   else:
-    log.info(' #### pooling %d**2 out of %dx%d' % (config['max_sampling_1d_size'], fH, fW))
+    log.info(' #### pooling %dx%d out of %dx%d' % (
+      config['max_sampling_1d_size'], config['max_sampling_1d_size'], fH, fW))
     y_pred_vgg, y_true_vgg = random_pooling([y_pred_vgg, y_true_vgg],
                                             output_1d_size=config['max_sampling_1d_size'],
                                             batch_size=batch_size)
@@ -46,8 +56,7 @@ def random_pooling(feats, output_1d_size, batch_size):
   feats = [tf.convert_to_tensor(feats_i) for feats_i in feats]
   
   _, H, W, C = feats[0].shape.as_list()
-  feats_sampled_0, indices = random_sampling(feats[0], output_1d_size ** 2, H, W, C,
-                                             batch_size)
+  feats_sampled_0, indices = random_sampling(feats[0], output_1d_size ** 2, H, W, C, batch_size)
   res = [feats_sampled_0]
   for i in range(1, len(feats)):
     feats_sampled_i, _ = random_sampling(feats[i], -1, H, W, C, batch_size, indices)
@@ -60,21 +69,17 @@ def random_pooling(feats, output_1d_size, batch_size):
   return res
 
 
-def mrf_loss(y_pred_vgg, y_true_vgg, batch_size, nnsigma=float(1.0)):
+def mrf_loss(y_pred_vgg, y_true_vgg, batch_size, nnsigma):
   y_pred_vgg = tf.convert_to_tensor(y_pred_vgg, dtype=tf.float32)
   y_true_vgg = tf.convert_to_tensor(y_true_vgg, dtype=tf.float32)
   
-  with tf.name_scope('cx'):
-    cs_sim = contextual_similarity_utills.calculate_cs_sim(y_true_vgg, y_pred_vgg, batch_size,
-                                                           nnsigma)
-    # sum_normalize:
-    height_width_axis = [1, 2]
-    # To:
-    k_max_NC = tf.reduce_max(cs_sim, axis=height_width_axis)
-    contextual_similarites = tf.reduce_mean(k_max_NC, axis=[1])
-    CS_loss = -tf.log(contextual_similarites)
-    CS_loss = tf.reduce_mean(CS_loss)
-    return CS_loss
+  cs = contextual_similarity_utills.calculate_cs(y_true_vgg, y_pred_vgg, batch_size, nnsigma)
+  height_width_axis = [1, 2]
+  cs_sim_max = tf.reduce_max(cs, axis=height_width_axis)
+  contextual_similarities = tf.reduce_mean(cs_sim_max, axis=[1])
+  loss = -tf.log(contextual_similarities)
+  loss = tf.reduce_mean(loss)
+  return loss
 
 
 def random_sampling(tensor_in, n, H, W, C, batch_size, indices=None):

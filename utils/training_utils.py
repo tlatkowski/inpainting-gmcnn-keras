@@ -18,7 +18,7 @@ def create_standard_log(generator_loss: namedtuple, global_discriminator_loss: n
 
 
 def create_warm_up_log(generator_loss):
-  logs = {'confidence_reconstruction_loss': generator_loss[0]}
+  logs = {'generator_warm_up': generator_loss[0]}
   return logs
 
 
@@ -40,7 +40,7 @@ def log_predicted_img(predicted_img_path, input_img, sample_pred, mask, epoch):
                         sample_pred[0][..., [2, 1, 0]] * 127.5 + 127.5,
                         input_img[0][..., [2, 1, 0]] * 127.5 + 127.5),
                        axis=1)
-  img_filepath = os.path.join(predicted_img_path, 'epoch_{0:03d}.png'.format(epoch))
+  img_filepath = os.path.join(predicted_img_path, 'step_{0:03d}.png'.format(epoch))
   cv2.imwrite(img_filepath, img)
 
 

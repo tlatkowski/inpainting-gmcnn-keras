@@ -32,6 +32,8 @@ class GMCNNGan(WassersteinGAN):
     self.vgg_16_layers = config.model.vgg_16_layers
     self.id_mrf_style_weight = config.model.id_mrf_style_weight
     self.id_mrf_content_weight = config.model.id_mrf_content_weight
+    self.gaussian_kernel_size = config.model.gaussian_kernel_size
+    self.gaussian_kernel_std = config.model.gaussian_kernel_std
     
     self.generator_optimizer = Adam(lr=self.learning_rate, beta_1=0.5, beta_2=0.9)
     self.discriminator_optimizer = Adam(lr=self.learning_rate, beta_1=0.5, beta_2=0.9)
@@ -81,7 +83,9 @@ class GMCNNGan(WassersteinGAN):
     # this partial trick is required for passing additional parameters for loss functions
     partial_cr_loss = partial(confidence_reconstruction_loss,
                               mask=generator_inputs_mask,
-                              num_steps=self.num_gaussian_steps)
+                              num_steps=self.num_gaussian_steps,
+                              gaussian_kernel_size=self.gaussian_kernel_size,
+                              gaussian_kernel_std=self.gaussian_kernel_std)
     
     partial_cr_loss.__name__ = 'confidence_reconstruction_loss'
     
