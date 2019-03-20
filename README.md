@@ -9,7 +9,7 @@
 ![GMCNN model](./pics/models/gmcnn_model.png)
 
 ## Installation
-* Code on this repository was tested on **Python 3.6** and **Ubuntu 14.04**
+* Code from this repository was tested on **Python 3.6** and **Ubuntu 14.04**
 * All required dependencies are stored in **requirements.txt**, **requirements-cpu.txt** and **requirements-gpu.txt** files.
 
 Code download:
@@ -61,7 +61,7 @@ samples
 
 **places365** catalog contains 5 sample images form Places365 validation set.
 ## Model training
-The main configuration file is placed at **./config/main_config.ini**. It contains training and model parameters. You can tweak those parameters before model running.
+The main configuration file is placed in **./config/main_config.ini**. It contains training and model parameters. You can tweak those parameters before model running.
 
 The default configuration looks as follows:
 ```ini
@@ -108,7 +108,7 @@ python runner.py --train_path /path/to/training/images --mask_path /path/to/mask
 In this mode the generator will be trained with only confidence-driven reconstruction loss.
 
 ### WGAN-GP training
-In order to continue training with full WGAN-GP framework (GMCNN generator, local and global discriminator), execute:
+In order to continue training with full WGAN-GP framework (GMCNN generator, local and global discriminators), execute:
 ```bash
 python runner.py --train_path /path/to/training/images --mask_path /path/to/mask/images -from_weights
 ```
@@ -119,13 +119,13 @@ Running training with additional **from_weights** flag will force pipeline to lo
 
 During the training procedure the pipeline logs additional results to the **outputs** directory:
 * **outputs/logs** contains TensorBoard logs
-* **outputs/predicted_pics/warm_up_generator** contains the model predictions for specific steps in the warm up generator training mode
-* **outputs/predicted_pics/wgan** contains the model predictions for specific steps in the WGAN-GP training mode
+* **outputs/predicted_pics/warm_up_generator** contains the model predictions for the specific steps in the warm up generator training mode
+* **outputs/predicted_pics/wgan** contains the model predictions for the specific steps in the WGAN-GP training mode
 * **outputs/weights** contains the generator and critics models weights
 * **outputs/summaries** contains the generator and critics models summaries
 
 You can track the metrics during the training with usage of TensorBoard:
-```bash
+```bashK
 tensorboard --logdir=./outputs/logs
 ```
 
@@ -157,7 +157,7 @@ Original | 1 step | 2 steps | 3 steps | 4 steps | 5 steps | 10 steps
 
 ## Visualization of training losses
 
-After activating TensorBoard you can monitor the training metrics:
+After activating TensorBoard you can monitor the following training metrics:
 1. For the generator: confidence reconstruction loss, global wasserstein loss, local wasserstein loss, id mrf loss and total loss
 2. For the local and global discriminators: fake loss, real loss, gradient penalty loss and total loss
 
