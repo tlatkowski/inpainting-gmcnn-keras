@@ -110,8 +110,8 @@ class GMCNNGan(WassersteinGAN):
       generator_model.compile(optimizer=self.generator_optimizer,
                               loss=[partial_cr_loss, partial_id_mrf_loss, partial_wasserstein_loss,
                                     partial_wasserstein_loss],
-                              loss_weights=[1., 0., 0., 0.],
-                              metrics=[metrics.psnr])
+                              loss_weights=[1., 0., 0., 0.])
+                              # metrics=[metrics.psnr])
     else:
       generator_model.compile(optimizer=self.generator_optimizer,
                               loss=[partial_cr_loss, partial_id_mrf_loss, partial_wasserstein_loss,
