@@ -27,7 +27,7 @@ def parse_namedtuple(losses: namedtuple, prefix: str):
   return log
 
 
-def log_predicted_img(predicted_img_path, input_img, sample_pred, mask, epoch):
+def save_predicted_img(predicted_img_path, input_img, sample_pred, mask, epoch):
   os.makedirs(predicted_img_path, exist_ok=True)
   input_img = np.expand_dims(input_img[0], 0)
   input_mask = np.expand_dims(mask[0], 0)
@@ -48,3 +48,8 @@ def get_logger():
   log = tf.logging
   tf.logging.set_verbosity(tf.logging.INFO)
   return log
+
+
+def set_visible_gpu(gpu_number: str):
+  get_logger().info('Setting visible GPU to {}'.format(gpu_number))
+  os.environ["CUDA_VISIBLE_DEVICES"] = gpu_number

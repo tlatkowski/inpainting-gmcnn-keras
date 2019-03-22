@@ -6,6 +6,7 @@ from keras import callbacks
 
 from utils import constants
 from utils import training_utils
+from utils import metrics
 
 
 class Trainer:
@@ -38,7 +39,7 @@ class Trainer:
     y_dummy = np.zeros((self.gan_model.wgan_batch_size, 1))
     
     tensorboard = callbacks.TensorBoard(self.log_path, 0)
-    tensorboard.set_model(self.gan_model.global_discriminator)
+    tensorboard.set_model(self.gan_model.generator)
     
     global_step = 0
     for epoch in self.epochs_iter:
@@ -49,7 +50,7 @@ class Trainer:
           break
         step += 1
         
-        if self.gan_model.warm_up_generator: # TODO do generator steps not WGAN
+        if self.gan_model.warm_up_generator:  # TODO do generator steps not WGAN
           generator_loss = self.gan_model.train_generator(inputs=[real_img, mask],
                                                           outputs=[real_img, real_img, y_real,
                                                                    y_real])
@@ -72,8 +73,11 @@ class Trainer:
           input_img = np.expand_dims(real_img[0], 0)
           input_mask = np.expand_dims(mask[0], 0)
           predicted_img = self.gan_model.predict(inputs=[input_img, input_mask])
-          training_utils.log_predicted_img(self.predicted_img_path, input_img, predicted_img,
-                                           input_mask, global_step)
+          training_utils.save_predicted_img(self.predicted_img_path, input_img, predicted_img,
+                                            input_mask, global_step)
+          m = metrics.psnr(input_img, predicted_img)
+          l = {'metrics/psnr': m}
+          tensorboard.on_epoch_end(global_step, l)
           self.gan_model.save()
         
         tensorboard.on_epoch_end(global_step, logs)

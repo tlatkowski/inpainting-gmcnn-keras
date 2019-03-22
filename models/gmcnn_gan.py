@@ -10,6 +10,7 @@ from layers.losses import wasserstein_loss, gradient_penalty_loss, \
 from models.discriminator import GlobalDiscriminator, LocalDiscriminator
 from models.generator import Generator
 from models.wgan import WassersteinGAN
+from utils import metrics
 
 
 class GMCNNGan(WassersteinGAN):
@@ -109,7 +110,8 @@ class GMCNNGan(WassersteinGAN):
       generator_model.compile(optimizer=self.generator_optimizer,
                               loss=[partial_cr_loss, partial_id_mrf_loss, partial_wasserstein_loss,
                                     partial_wasserstein_loss],
-                              loss_weights=[1., 0., 0., 0.])
+                              loss_weights=[1., 0., 0., 0.],
+                              metrics=[metrics.psnr])
     else:
       generator_model.compile(optimizer=self.generator_optimizer,
                               loss=[partial_cr_loss, partial_id_mrf_loss, partial_wasserstein_loss,

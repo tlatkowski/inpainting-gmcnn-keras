@@ -5,3 +5,4 @@ h5py==2.9.0
 pillow==5.3.0
 opencv-python==3.4.3.18
 tqdm==4.31.1
+scikit-image==0.14.2

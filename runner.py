@@ -39,6 +39,7 @@ def main():
   
   args = parser.parse_args()
   
+  training_utils.set_visible_gpu(args.gpu)
   if args.warm_up_generator:
     log.info('Performing generator training only with the reconstruction loss.')
   
