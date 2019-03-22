@@ -68,12 +68,12 @@ The default configuration looks as follows:
 [TRAINING]
 WGAN_TRAINING_RATIO = 5
 NUM_EPOCHS = 5
-BATCH_SIZE = 1
+BATCH_SIZE = 4
 IMG_HEIGHT = 256
 IMG_WIDTH = 256
 NUM_CHANNELS = 3
 LEARNING_RATE = 0.0001
-SAVE_MODEL_STEPS_PERIOD = 5000
+SAVE_MODEL_STEPS_PERIOD = 100
 
 [MODEL]
 GRADIENT_PENALTY_LOSS_WEIGHT = 10
@@ -86,7 +86,6 @@ ID_MRF_CONTENT_WEIGHT = 1.0
 NUM_GAUSSIAN_STEPS = 3
 GAUSSIAN_KERNEL_SIZE = 32
 GAUSSIAN_KERNEL_STD = 40.0
-
 ```
 
 After the dependencies installation you can perform training dry-run using image and mask samples provided in **samples** directory. To do so, execute the following command:
