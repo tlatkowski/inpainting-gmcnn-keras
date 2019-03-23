@@ -89,6 +89,7 @@ GAUSSIAN_KERNEL_STD = 40.0
 ```
 
 After the dependencies installation you can perform training dry-run using image and mask samples provided in **samples** directory. To do so, execute the following command:
+
 **NOTE: Set BATCH_SIZE to 1 before executing the below command.**
 ```bash
 python runner.py --train_path ./samples/images --mask_path ./samples/masks
