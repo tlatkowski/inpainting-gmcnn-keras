@@ -73,7 +73,7 @@ IMG_HEIGHT = 256
 IMG_WIDTH = 256
 NUM_CHANNELS = 3
 LEARNING_RATE = 0.0001
-SAVE_MODEL_STEPS_PERIOD = 100
+SAVE_MODEL_STEPS_PERIOD = 1000
 
 [MODEL]
 GRADIENT_PENALTY_LOSS_WEIGHT = 10
@@ -89,6 +89,7 @@ GAUSSIAN_KERNEL_STD = 40.0
 ```
 
 After the dependencies installation you can perform training dry-run using image and mask samples provided in **samples** directory. To do so, execute the following command:
+**NOTE: Set BATCH_SIZE to 1 before executing the below command.**
 ```bash
 python runner.py --train_path ./samples/images --mask_path ./samples/masks
 ```
