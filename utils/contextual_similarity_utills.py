@@ -51,7 +51,8 @@ def calculate_cosine_distances(y_true_vgg, y_pred_vgg, batch_size):
     cosine_distances_per_batch.append(cosine_dist_i)
   
   cosine_distances = tf.concat(cosine_distances_per_batch, axis=0)
-  return cosine_distances
+  cosine_dist_zero_to_one = -(cosine_distances - 1) / 2
+  return cosine_dist_zero_to_one
 
 
 def calculate_relative_distances(raw_distances, axis=3, epsilon=1e-5):

@@ -91,6 +91,7 @@ class GMCNNGan(WassersteinGAN):
     partial_cr_loss.__name__ = 'confidence_reconstruction_loss'
     
     partial_id_mrf_loss = partial(id_mrf_loss,
+                                  mask=generator_inputs_mask,
                                   nn_stretch_sigma=self.nn_stretch_sigma,
                                   batch_size=self.batch_size,
                                   vgg_16_layers=self.vgg_16_layers,
