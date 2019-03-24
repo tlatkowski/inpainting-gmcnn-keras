@@ -116,6 +116,11 @@ python runner.py --train_path /path/to/training/images --mask_path /path/to/mask
 
 Running training with additional **from_weights** flag will force pipeline to load the latest models checkpoints from **./outputs/weights/** directory. 
 
+### GMCNN model training in Google Colab notebook
+If you don't have an access to workstation with GPU, you can use the below exemplary Google Colab notebook for training your GMCNN model on Places365 validation data and NVIDIA's testing mask with usage of K80 GPU available within Google Colab backend: [GMCNN in Google Colab](https://github.com/tlatkowski/inpainting-gmcnn-keras/blob/master/colab/Image_Inpainting_with_GMCNN_model.ipynb)
+
+
+
 ### Pipeline outcomes
 
 During the training procedure the pipeline logs additional results to the **outputs** directory:
@@ -126,7 +131,7 @@ During the training procedure the pipeline logs additional results to the **outp
 * **outputs/summaries** contains the generator and critics models summaries
 
 You can track the metrics during the training with usage of TensorBoard:
-```bashK
+```bash
 tensorboard --logdir=./outputs/logs
 ```
 
