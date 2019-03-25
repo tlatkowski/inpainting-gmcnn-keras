@@ -8,6 +8,10 @@
 ## Model architecture
 ![GMCNN model](./pics/models/gmcnn_model.png)
 
+![](https://img.shields.io/badge/-convolution-yellow.svg)
+![](https://img.shields.io/badge/-dilated_convolution-red.svg)
+![](https://img.shields.io/badge/-up_scaling-blue.svg)
+![](https://img.shields.io/badge/-concatention-lightgrey.svg)
 ## Installation
 * Code from this repository was tested on **Python 3.6** and **Ubuntu 14.04**
 * All required dependencies are stored in **requirements.txt**, **requirements-cpu.txt** and **requirements-gpu.txt** files.
