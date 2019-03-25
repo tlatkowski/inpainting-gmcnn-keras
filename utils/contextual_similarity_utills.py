@@ -13,7 +13,8 @@ def calculate_cs(y_true_vgg, y_pred_vgg, batch_size, sigma=float(1.0), b=float(1
 
 def calculate_cosine_distances(y_true_vgg, y_pred_vgg, batch_size):
   # prepare feature before calculating cosine distance
-  y_pred_vgg, y_true_vgg = norm_utils.center_by_predicted(y_pred_vgg, y_true_vgg)
+  # y_pred_vgg, y_true_vgg = norm_utils.center_by_predicted(y_pred_vgg, y_true_vgg)
+  y_pred_vgg, y_true_vgg = norm_utils.center_by_predicted(y_true_vgg, y_pred_vgg) # norm by true
   y_pred_vgg = norm_utils.l2_normalize_channel_wise(y_pred_vgg)
   y_true_vgg = norm_utils.l2_normalize_channel_wise(y_true_vgg)
   
@@ -21,9 +22,13 @@ def calculate_cosine_distances(y_true_vgg, y_pred_vgg, batch_size):
   for i in range(batch_size):
     y_pred_vgg_i = tf.expand_dims(y_pred_vgg[i, :, :, :], 0)
     y_true_vgg_i = tf.expand_dims(y_true_vgg[i, :, :, :], 0)
-    patches_i = extract_patches(y_pred_vgg_i)
-    cosine_dist_i = tf.nn.conv2d(y_true_vgg_i, patches_i, strides=[1, 1, 1, 1],
+    # patches_i = extract_patches(y_pred_vgg_i)
+    # cosine_dist_i = tf.nn.conv2d(y_true_vgg_i, patches_i, strides=[1, 1, 1, 1],
+    #                              padding='VALID', use_cudnn_on_gpu=True, name='cosine_dist')
+    patches_i = extract_patches(y_true_vgg_i)
+    cosine_dist_i = tf.nn.conv2d(y_pred_vgg_i, patches_i, strides=[1, 1, 1, 1],
                                  padding='VALID', use_cudnn_on_gpu=True, name='cosine_dist')
+    
     cosine_distances_per_batch.append(cosine_dist_i)
   
   cosine_distances = tf.concat(cosine_distances_per_batch, axis=0)
