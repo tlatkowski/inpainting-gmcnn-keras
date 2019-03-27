@@ -112,6 +112,9 @@ python runner.py --train_path /path/to/training/images --mask_path /path/to/mask
 ```
 In this mode the generator will be trained with only confidence-driven reconstruction loss.
 
+Below picture presents GMCNN outcome after 5 epochs training in warm-up generator mode
+![](https://github.com/tlatkowski/inpainting-gmcnn/blob/master/pics/outputs/warm_up_generator_5_epochs.jpg)
+
 ### WGAN-GP training
 In order to continue training with full WGAN-GP framework (GMCNN generator, local and global discriminators), execute:
 ```bash

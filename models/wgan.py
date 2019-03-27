@@ -95,11 +95,11 @@ class WassersteinGAN:
     return [x[i * self.batch_size: (i + 1) * self.batch_size] for x in wgan_batch]
   
   def load(self):
-    self.generator.load_weights(self.generator_weights_path)
+    self.generator.load_weights(self.generator_weights_path, by_name=True, skip_mismatch=True)
     log.info('Loaded generator weights from: %s', self.generator_weights_path)
-    self.global_discriminator.load_weights(self.global_critic_weights_path)
+    self.global_discriminator.load_weights(self.global_critic_weights_path, by_name=True, skip_mismatch=True)
     log.info('Loaded global critic weights from: %s', self.global_critic_weights_path)
-    self.local_discriminator.load_weights(self.local_critic_weights_path)
+    self.local_discriminator.load_weights(self.local_critic_weights_path, by_name=True, skip_mismatch=True)
     log.info('Loaded local critic weights from: %s', self.local_critic_weights_path)
   
   def save(self):
