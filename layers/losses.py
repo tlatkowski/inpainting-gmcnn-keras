@@ -71,7 +71,8 @@ def confidence_reconstruction_loss(y_true, y_pred, mask, num_steps, gaussian_ker
                                           gaussian_kernel_std)
   valid_mask = 1 - mask
   diff = K.abs(y_true - y_pred)
-  l1 = K.mean(diff * valid_mask + diff * mask_blurred, axis=[1, 2, 3])
+  # l1 = K.mean(diff * valid_mask + diff * mask_blurred, axis=[1, 2, 3])
+  l1 = K.mean(diff * valid_mask + diff * mask_blurred)
   return l1
 
 
