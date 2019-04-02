@@ -2,7 +2,7 @@
 
 # Generative Multi-column Convolutional Neural Networks inpainting model in Keras
 **Keras** implementation of **GMCNN** (Generative Multi-column Convolutional Neural Networks) inpainting model originally proposed at NIPS 2018:
-[Image Inpainting via Generative Multi-column Convolutional Neural Networks](https://arxiv.org/abs/1810.0877)
+[Image Inpainting via Generative Multi-column Convolutional Neural Networks](https://arxiv.org/pdf/1810.08771.pdf)
 
 
 ## Model architecture
