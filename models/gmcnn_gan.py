@@ -10,7 +10,6 @@ from layers.losses import wasserstein_loss, gradient_penalty_loss, \
 from models.discriminator import GlobalDiscriminator, LocalDiscriminator
 from models.generator import Generator
 from models.wgan import WassersteinGAN
-from utils import metrics
 
 
 class GMCNNGan(WassersteinGAN):
@@ -35,6 +34,7 @@ class GMCNNGan(WassersteinGAN):
     self.id_mrf_content_weight = config.model.id_mrf_content_weight
     self.gaussian_kernel_size = config.model.gaussian_kernel_size
     self.gaussian_kernel_std = config.model.gaussian_kernel_std
+    self.add_mask_as_generator_input = config.model.add_mask_as_generator_input
     
     self.generator_optimizer = Adam(lr=self.learning_rate, beta_1=0.5, beta_2=0.9)
     self.discriminator_optimizer = Adam(lr=self.learning_rate, beta_1=0.5, beta_2=0.9)
@@ -43,7 +43,8 @@ class GMCNNGan(WassersteinGAN):
                                                       self.num_channels)
     self.global_discriminator_raw = GlobalDiscriminator(self.img_height, self.img_width,
                                                         self.num_channels)
-    self.generator_raw = Generator(self.img_height, self.img_width, self.num_channels)
+    self.generator_raw = Generator(self.img_height, self.img_width, self.num_channels,
+                                   self.add_mask_as_generator_input)
     
     # define generator model
     self.global_discriminator_raw.disable()
@@ -112,7 +113,7 @@ class GMCNNGan(WassersteinGAN):
                               loss=[partial_cr_loss, partial_id_mrf_loss, partial_wasserstein_loss,
                                     partial_wasserstein_loss],
                               loss_weights=[1., 0., 0., 0.])
-                              # metrics=[metrics.psnr])
+      # metrics=[metrics.psnr])
     else:
       generator_model.compile(optimizer=self.generator_optimizer,
                               loss=[partial_cr_loss, partial_id_mrf_loss, partial_wasserstein_loss,

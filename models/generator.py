@@ -9,7 +9,8 @@ from models.base import BaseModel
 
 class Generator(BaseModel):
   
-  def __init__(self, img_height, img_width, num_channels):
+  def __init__(self, img_height, img_width, num_channels, add_mask_as_input):
+    self.add_mask_as_input = add_mask_as_input
     super(Generator, self).__init__(img_height, img_width, num_channels, model_name='generator')
   
   def model(self):
@@ -18,6 +19,9 @@ class Generator(BaseModel):
     
     neg_masks = BinaryNegation()(masks)
     inputs = Multiply()([inputs_img, neg_masks])
+    
+    if self.add_mask_as_input:
+      inputs = Concatenate(axis=3)([inputs, masks])
     
     # Encoder-branch-1
     eb1 = Conv2D(filters=32, kernel_size=7, strides=(1, 1), padding='same')(inputs)
