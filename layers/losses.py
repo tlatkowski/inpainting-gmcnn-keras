@@ -28,7 +28,7 @@ def wasserstein_loss(y_true, y_pred, wgan_loss_weight=1.0):
   return wgan_loss_weight * K.mean(y_true * y_pred)
 
 
-def gradient_penalty_loss(y_true, y_pred, averaged_samples,
+def gradient_penalty_loss(y_true, y_pred, averaged_samples, # TODO apply mask to gp_loss
                           gradient_penalty_weight):
   """Calculates the gradient penalty loss for a batch of "averaged" samples.
   In Improved WGANs, the 1-Lipschitz constraint is enforced by adding a term to the
