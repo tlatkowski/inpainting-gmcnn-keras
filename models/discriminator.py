@@ -9,8 +9,8 @@ from models.base import BaseModel
 
 class LocalDiscriminator(BaseModel):
   
-  def __init__(self, img_height, img_width, num_channels):
-    super(LocalDiscriminator, self).__init__(img_height, img_width, num_channels,
+  def __init__(self, img_height, img_width, num_channels, output_paths):
+    super(LocalDiscriminator, self).__init__(img_height, img_width, num_channels, output_paths,
                                              model_name='local_discriminator')
   
   def model(self):
@@ -41,8 +41,8 @@ class LocalDiscriminator(BaseModel):
 
 class GlobalDiscriminator(BaseModel):
   
-  def __init__(self, img_height, img_width, num_channels):
-    super(GlobalDiscriminator, self).__init__(img_height, img_width, num_channels,
+  def __init__(self, img_height, img_width, num_channels, output_paths):
+    super(GlobalDiscriminator, self).__init__(img_height, img_width, num_channels, output_paths,
                                               model_name='global_discriminator')
   
   def model(self):

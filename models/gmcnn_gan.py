@@ -10,14 +10,15 @@ from layers.losses import wasserstein_loss, gradient_penalty_loss, \
 from models.discriminator import GlobalDiscriminator, LocalDiscriminator
 from models.generator import Generator
 from models.wgan import WassersteinGAN
+from utils import constants
 
 
 class GMCNNGan(WassersteinGAN):
   
   def __init__(self, batch_size, img_height, img_width, num_channels, warm_up_generator,
-               config: main_config.MainConfig):
+               config: main_config.MainConfig, output_paths: constants.OutputPaths):
     super(GMCNNGan, self).__init__(img_height, img_width, num_channels, batch_size,
-                                   config.training.wgan_training_ratio)
+                                   config.training.wgan_training_ratio, output_paths)
     
     self.img_height = img_height
     self.img_width = img_width
@@ -40,11 +41,11 @@ class GMCNNGan(WassersteinGAN):
     self.discriminator_optimizer = Adam(lr=self.learning_rate, beta_1=0.5, beta_2=0.9)
     
     self.local_discriminator_raw = LocalDiscriminator(self.img_height, self.img_width,
-                                                      self.num_channels)
+                                                      self.num_channels, output_paths)
     self.global_discriminator_raw = GlobalDiscriminator(self.img_height, self.img_width,
-                                                        self.num_channels)
+                                                        self.num_channels, output_paths)
     self.generator_raw = Generator(self.img_height, self.img_width, self.num_channels,
-                                   self.add_mask_as_generator_input)
+                                   self.add_mask_as_generator_input, output_paths)
     
     # define generator model
     self.global_discriminator_raw.disable()
@@ -127,7 +128,8 @@ class GMCNNGan(WassersteinGAN):
     
     real_samples = Input(shape=(self.img_height, self.img_width, self.num_channels))
     fake_samples = generator_raw.model([generator_inputs, generator_masks])
-    fake_samples = generator_inputs * (1 - generator_masks) + fake_samples * generator_masks
+    # fake_samples = generator_inputs * (1 - generator_masks) + fake_samples * generator_masks
+    # fake_samples = Lambda(make_comp_sample)([generator_inputs, fake_samples, generator_masks])
     
     discriminator_output_from_fake_samples = global_discriminator_raw.model(fake_samples)
     discriminator_output_from_real_samples = global_discriminator_raw.model(real_samples)
@@ -165,8 +167,9 @@ class GMCNNGan(WassersteinGAN):
     
     real_samples = Input(shape=(self.img_height, self.img_width, self.num_channels))
     fake_samples = generator_raw.model([generator_inputs, generator_masks])
-    fake_samples = generator_inputs * (1 - generator_masks) + fake_samples * generator_masks
-
+    # fake_samples = generator_inputs * (1 - generator_masks) + fake_samples * generator_masks
+    # fake_samples = Lambda(make_comp_sample)([generator_inputs, fake_samples, generator_masks])
+    
     discriminator_output_from_fake_samples = local_discriminator_raw.model(
       [fake_samples, generator_masks])
     discriminator_output_from_real_samples = local_discriminator_raw.model(
@@ -204,3 +207,7 @@ class GMCNNGan(WassersteinGAN):
   @property
   def generator_for_prediction(self):
     return self.generator_raw.model
+
+
+def make_comp_sample(generator_inputs, fake_samples, generator_masks):
+  return generator_inputs * (1 - generator_masks) + fake_samples * generator_masks

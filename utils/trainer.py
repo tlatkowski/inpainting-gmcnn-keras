@@ -5,14 +5,14 @@ import tqdm
 from keras import callbacks
 
 from utils import constants
-from utils import training_utils
 from utils import metrics
+from utils import training_utils
 
 
 class Trainer:
   
   def __init__(self, gan_model, img_dataset, mask_dataset, batch_size, img_height, img_width,
-               num_epochs, save_model_steps_period):
+               num_epochs, save_model_steps_period, output_paths: constants.OutputPaths):
     self.gan_model = gan_model
     self.img_dataset = img_dataset
     self.mask_dataset = mask_dataset
@@ -27,11 +27,11 @@ class Trainer:
     
     self.epochs_iter = tqdm.tqdm(range(self.num_epochs), total=self.num_epochs, desc='Epochs')
     if self.gan_model.warm_up_generator:
-      self.log_path = constants.WARM_UP_LOGS_PATH
-      self.predicted_img_path = constants.PREDICTED_PICS_WARM_UP_PATH
+      self.log_path = output_paths.warm_up_logs_path
+      self.predicted_img_path = output_paths.predicted_pics_warm_up_path
     else:
-      self.log_path = constants.WGAN_LOGS_PATH
-      self.predicted_img_path = constants.PREDICTED_PICS_WGAN_PATH
+      self.log_path = output_paths.wgan_logs_path
+      self.predicted_img_path = output_paths.predicted_pics_wgan_path
   
   def train(self):
     y_real = np.ones([self.gan_model.wgan_batch_size, 1])

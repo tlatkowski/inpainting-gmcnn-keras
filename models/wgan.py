@@ -1,7 +1,6 @@
 import collections
 import os
 
-from utils import constants
 from utils import training_utils
 
 log = training_utils.get_logger()
@@ -20,7 +19,7 @@ DiscriminatorLosses = collections.namedtuple('DiscriminatorLosses', ['total_loss
 
 class WassersteinGAN:
   
-  def __init__(self, img_height, img_width, num_channels, batch_size, n_critic):
+  def __init__(self, img_height, img_width, num_channels, batch_size, n_critic, output_paths):
     """
     Abstract class representing Wasserstein GAN model framework. It is responsible for performing
     WGAN training procedure:
@@ -38,10 +37,12 @@ class WassersteinGAN:
     self.num_channels = num_channels
     self.batch_size = batch_size
     self.n_critic = n_critic
+    self.output_paths = output_paths
+    
     self.wgan_batch_size = self.n_critic * self.batch_size
-    self.global_critic_weights_path = constants.GLOBAL_CRITIC_WEIGHTS_FILE
-    self.local_critic_weights_path = constants.LOCAL_CRITIC_WEIGHTS_FILE
-    self.generator_weights_path = constants.GENERATOR_WEIGHTS_FILE
+    self.global_critic_weights_path = self.output_paths.global_critic_weights_path
+    self.local_critic_weights_path = self.output_paths.local_critic_weights_file
+    self.generator_weights_path = self.output_paths.generator_weights_path
   
   @property
   def global_discriminator(self):
@@ -97,13 +98,15 @@ class WassersteinGAN:
   def load(self):
     self.generator.load_weights(self.generator_weights_path, by_name=True, skip_mismatch=True)
     log.info('Loaded generator weights from: %s', self.generator_weights_path)
-    self.global_discriminator.load_weights(self.global_critic_weights_path, by_name=True, skip_mismatch=True)
+    self.global_discriminator.load_weights(self.global_critic_weights_path, by_name=True,
+                                           skip_mismatch=True)
     log.info('Loaded global critic weights from: %s', self.global_critic_weights_path)
-    self.local_discriminator.load_weights(self.local_critic_weights_path, by_name=True, skip_mismatch=True)
+    self.local_discriminator.load_weights(self.local_critic_weights_path, by_name=True,
+                                          skip_mismatch=True)
     log.info('Loaded local critic weights from: %s', self.local_critic_weights_path)
   
   def save(self):
-    os.makedirs(constants.OUTPUT_WEIGHTS_PATH, exist_ok=True)
+    os.makedirs(self.output_paths.output_weights_path, exist_ok=True)
     self.generator.save_weights(self.generator_weights_path, overwrite=True)
     log.info('Saved generator weights to: %s', self.generator_weights_path)
     self.global_discriminator.save_weights(self.global_critic_weights_path, overwrite=True)

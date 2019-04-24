@@ -9,9 +9,10 @@ from models.base import BaseModel
 
 class Generator(BaseModel):
   
-  def __init__(self, img_height, img_width, num_channels, add_mask_as_input):
+  def __init__(self, img_height, img_width, num_channels, add_mask_as_input, output_paths):
     self.add_mask_as_input = add_mask_as_input
-    super(Generator, self).__init__(img_height, img_width, num_channels, model_name='generator')
+    super(Generator, self).__init__(img_height, img_width, num_channels, output_paths,
+                                    model_name='generator')
   
   def model(self):
     inputs_img = Input(shape=(self.img_height, self.img_width, self.num_channels))

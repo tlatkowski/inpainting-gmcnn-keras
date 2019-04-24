@@ -8,6 +8,7 @@ from data_generators import datasets
 from models import gmcnn_gan
 from utils import trainer
 from utils import training_utils
+from utils import constants
 
 log = training_utils.get_logger()
 
@@ -25,6 +26,10 @@ def main():
                       required=True,
                       help='The path to mask images')
   
+  parser.add_argument('--experiment_name',
+                      required=True,
+                      help='The name of experiment')
+  
   parser.add_argument('-warm_up_generator',
                       action='store_true',
                       help='Training generator model only with reconstruction loss')
@@ -39,6 +44,7 @@ def main():
   
   args = parser.parse_args()
   
+  output_paths = constants.OutputPaths(experiment_name=args.experiment_name)
   training_utils.set_visible_gpu(args.gpu)
   if args.warm_up_generator:
     log.info('Performing generator training only with the reconstruction loss.')
@@ -54,7 +60,8 @@ def main():
                                        img_width=config.training.img_width,
                                        num_channels=config.training.num_channels,
                                        warm_up_generator=args.warm_up_generator,
-                                       config=config)
+                                       config=config,
+                                       output_paths=output_paths)
   
   if args.from_weights:
     log.info('Continue training from checkpoint...')
@@ -88,7 +95,8 @@ def main():
                                       img_height=config.training.img_height,
                                       img_width=config.training.img_width,
                                       num_epochs=config.training.num_epochs,
-                                      save_model_steps_period=config.training.save_model_steps_period)
+                                      save_model_steps_period=config.training.save_model_steps_period,
+                                      output_paths=output_paths)
   
   gmcnn_gan_trainer.train()
 
