@@ -2,7 +2,7 @@ from functools import partial
 
 from keras.models import Model, Input
 from keras.optimizers import Adam
-
+from keras.layers import Lambda
 from config import main_config
 from layers import custom_layers
 from layers.losses import wasserstein_loss, gradient_penalty_loss, \
@@ -129,7 +129,7 @@ class GMCNNGan(WassersteinGAN):
     real_samples = Input(shape=(self.img_height, self.img_width, self.num_channels))
     fake_samples = generator_raw.model([generator_inputs, generator_masks])
     # fake_samples = generator_inputs * (1 - generator_masks) + fake_samples * generator_masks
-    # fake_samples = Lambda(make_comp_sample)([generator_inputs, fake_samples, generator_masks])
+    fake_samples = Lambda(make_comp_sample)([generator_inputs, fake_samples, generator_masks])
     
     discriminator_output_from_fake_samples = global_discriminator_raw.model(fake_samples)
     discriminator_output_from_real_samples = global_discriminator_raw.model(real_samples)
@@ -209,5 +209,6 @@ class GMCNNGan(WassersteinGAN):
     return self.generator_raw.model
 
 
-def make_comp_sample(generator_inputs, fake_samples, generator_masks):
+def make_comp_sample(inputs):
+  generator_inputs, fake_samples, generator_masks = inputs
   return generator_inputs * (1 - generator_masks) + fake_samples * generator_masks
