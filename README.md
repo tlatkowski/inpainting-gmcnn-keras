@@ -97,13 +97,13 @@ After the dependencies installation you can perform training dry-run using image
 
 **NOTE: Set BATCH_SIZE to 1 before executing the below command.**
 ```bash
-python runner.py --train_path ./samples/images --mask_path ./samples/masks
+python runner.py --train_path ./samples/images --mask_path ./samples/masks --experiment_name "dry-run-test"
 ```
 If everything goes correct you should be able to see the progress bar logging the basic training metrics.
 
 In order to run GMCNN model training on your training data you have to provide paths to your datasets:
 ```bash
-python runner.py --train_path /path/to/training/images --mask_path /path/to/mask/images
+python runner.py --train_path /path/to/training/images --mask_path /path/to/mask/images --experiment_name "experiment_name"
 ```
 
 ### Warm-up generator training
@@ -119,7 +119,7 @@ Below picture presents GMCNN outcome after 5 epochs training in warm-up generato
 ### WGAN-GP training
 In order to continue training with full WGAN-GP framework (GMCNN generator, local and global discriminators), execute:
 ```bash
-python runner.py --train_path /path/to/training/images --mask_path /path/to/mask/images -from_weights
+python runner.py --train_path /path/to/training/images --mask_path /path/to/mask/images --experiment_name "experiment_name" -from_weights
 ```
 
 Running training with additional **from_weights** flag will force pipeline to load the latest models checkpoints from **./outputs/weights/** directory. 
@@ -132,15 +132,15 @@ If you don't have an access to workstation with GPU, you can use the below exemp
 ### Pipeline outcomes
 
 During the training procedure the pipeline logs additional results to the **outputs** directory:
-* **outputs/logs** contains TensorBoard logs
-* **outputs/predicted_pics/warm_up_generator** contains the model predictions for the specific steps in the warm up generator training mode
-* **outputs/predicted_pics/wgan** contains the model predictions for the specific steps in the WGAN-GP training mode
-* **outputs/weights** contains the generator and critics models weights
-* **outputs/summaries** contains the generator and critics models summaries
+* **outputs/experiment_name/logs** contains TensorBoard logs
+* **outputs/experiment_name/predicted_pics/warm_up_generator** contains the model predictions for the specific steps in the warm up generator training mode
+* **outputs/experiment_name/predicted_pics/wgan** contains the model predictions for the specific steps in the WGAN-GP training mode
+* **outputs/experiment_name/weights** contains the generator and critics models weights
+* **outputs/experiment_name/summaries** contains the generator and critics models summaries
 
 You can track the metrics during the training with usage of TensorBoard:
 ```bash
-tensorboard --logdir=./outputs/logs
+tensorboard --logdir=./outputs/experiment_name/logs
 ```
 
 ## Implementation differences from original paper
