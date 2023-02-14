@@ -9,6 +9,7 @@ import numpy as np
 from config import main_config
 from models import gmcnn_gan
 from utils import training_utils
+from utils import constants
 
 log = training_utils.get_logger()
 
@@ -46,6 +47,10 @@ def main():
                       required=True,
                       help='The path to the mask')
   
+  parser.add_argument('--experiment_name',
+                      required=True,
+                      help='Name of the experiment to load weights from')
+  
   parser.add_argument('--save_to',
                       default='predicted.jpg',
                       help='The save path of predicted image')
@@ -59,6 +64,7 @@ def main():
                                    img_width=config.training.img_width,
                                    num_channels=config.training.num_channels,
                                    warm_up_generator=False,
+                                   output_paths=constants.OutputPaths(args.experiment_name),
                                    config=config)
   log.info('Loading GMCNN model...')
   gmcnn_model.load()
